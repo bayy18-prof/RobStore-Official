@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ROBSTORE · Top Up Robux</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        /* ============================================================
+           CUSTOM STYLES — NEON + GLASSMORPHISM
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #09090b;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* ---- SCROLLBAR ---- */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #12121a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8B5CF6;
+            border-radius: 20px;
+        }
+
+        /* ---- GLOW TEXT ---- */
+        .glow-text {
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.30), 0 0 60px rgba(139, 92, 246, 0.10);
+        }
+        .glow-text-cyan {
+            text-shadow: 0 0 30px rgba(6, 182, 212, 0.25);
+        }
+
+        /* ---- GLASS CARD ---- */
+        .glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.40);
+        }
+        .glass-light {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        /* ---- NEON BORDER GLOW ---- */
+        .neon-border {
+            border: 1.5px solid rgba(139, 92, 246, 0.20);
+            transition: 0.25s ease;
+        }
+        .neon-border:hover {
+            border-color: rgba(139, 92, 246, 0.50);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.10);
+        }
+        .neon-border.active {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 35px rgba(139, 92, 246, 0.20);
+        }
+
+        /* ---- CARD ROBIX ---- */
+        .robux-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 16px 14px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            position: relative;
+            text-align: center;
+        }
+        .robux-card:hover {
+            border-color: rgba(139, 92, 246, 0.35);
+            transform: translateY(-2px);
+            background: rgba(139, 92, 246, 0.04);
+        }
+        .robux-card.selected {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.08);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.10);
+        }
+        .robux-card .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #EC4899;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.30);
+        }
+        .robux-card .discount {
+            color: #EC4899;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .robux-card .original-price {
+            color: #6b7280;
+            font-size: 13px;
+            text-decoration: line-through;
+        }
+        .robux-card .price {
+            color: #f1f5f9;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* ---- PAYMENT METHOD ---- */
+        .payment-option {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1.5px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .payment-option:hover {
+            border-color: rgba(139, 92, 246, 0.25);
+            background: rgba(139, 92, 246, 0.04);
+        }
+        .payment-option.selected {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.08);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.08);
+        }
+        .payment-option .radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: 0.15s;
+        }
+        .payment-option.selected .radio {
+            border-color: #8B5CF6;
+            background: #8B5CF6;
+        }
+        .payment-option.selected .radio::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .payment-option .icon {
+            font-size: 22px;
+            width: 32px;
+            text-align: center;
+        }
+
+        /* ---- CTA BUTTON ---- */
+        .btn-primary {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.20);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.30);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        /* ---- LIVE TICKER ---- */
+        .ticker-track {
+            display: flex;
+            animation: tickerScroll 25s linear infinite;
+            gap: 40px;
+        }
+        @keyframes tickerScroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        .ticker-item {
+            white-space: nowrap;
+            color: #9ca3af;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ticker-item .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* ---- RESPONSIVE TWEAKS ---- */
+        @media (max-width: 640px) {
+            .robux-card .price {
+                font-size: 16px;
+            }
+            .btn-primary {
+                font-size: 16px;
+                padding: 12px 24px;
+            }
+        }
+
+        /* ===== GLOWING PARTICLES (CSS) ===== */
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle-bg span {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 50%;
+            animation: floatParticle 20s infinite linear;
+        }
+        .particle-bg span:nth-child(1) {
+            left: 10%;
+            animation-duration: 22s;
+        }
+        .particle-bg span:nth-child(2) {
+            left: 25%;
+            animation-duration: 18s;
+            animation-delay: 2s;
+            width: 6px;
+            height: 6px;
+        }
+        .particle-bg span:nth-child(3) {
+            left: 45%;
+            animation-duration: 26s;
+            animation-delay: 4s;
+        }
+        .particle-bg span:nth-child(4) {
+            left: 65%;
+            animation-duration: 20s;
+            animation-delay: 1s;
+            width: 8px;
+            height: 8px;
+            background: rgba(6, 182, 212, 0.10);
+        }
+        .particle-bg span:nth-child(5) {
+            left: 80%;
+            animation-duration: 24s;
+            animation-delay: 3s;
+        }
+        .particle-bg span:nth-child(6) {
+            left: 92%;
+            animation-duration: 19s;
+            animation-delay: 5s;
+            width: 5px;
+            height: 5px;
+        }
+        @keyframes floatParticle {
+            0% {
+                top: 110%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                top: -10%;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    BACKGROUND PARTICLES
+    ============================================================ -->
+    <div class="particle-bg">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+    </div>
+
+    <!-- ============================================================
+    WRAPPER
+    ============================================================ -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+
+        <!-- ============================================================
+        HEADER / NAVBAR
+        ============================================================ -->
+        <header class="glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <div class="text-2xl sm:text-3xl font-black tracking-tight glow-text">
+                    ROB<span class="text-[#8B5CF6]">STORE</span>
+                </div>
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#8B5CF6] bg-[#8B5CF6]/10 px-2.5 py-1 rounded-full border border-[#8B5CF6]/20">
+                    ⚡ Official
+                </span>
+            </div>
+
+            <!-- Nav Links (Desktop) -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
+                <a href="#" class="hover:text-white transition">Home</a>
+                <a href="#" class="hover:text-white transition">Price List</a>
+                <a href="#" class="hover:text-white transition">Cek Transaksi</a>
+                <a href="#" class="hover:text-white transition">Testimoni</a>
+                <a href="#" class="hover:text-white transition">Support</a>
+            </nav>
+
+            <!-- Search + Mobile Toggle -->
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center bg-white/5 rounded-full px-4 py-2 border border-white/5 focus-within:border-[#8B5CF6]/50 transition">
+                    <i class="fas fa-search text-gray-500 text-sm mr-2"></i>
+                    <input type="text" placeholder="Cari Robux..." class="bg-transparent border-none outline-none text-sm text-gray-200 w-32 sm:w-40" />
+                </div>
+                <button class="md:hidden text-gray-300 text-xl hover:text-white transition" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Nav (hidden by default) -->
+        <div class="md:hidden glass rounded-2xl px-4 py-4 mb-6 hidden" id="mobileMenu">
+            <div class="flex flex-col gap-3 text-sm font-medium text-gray-300">
+                <a href="#" class="hover:text-white transition py-1 border-b border-white/5">Home</a>
+                <a href="#" class="hover:text-white transition py-1 border-b border-white/5">Price List</a>
+                <a href="#" class="hover:text-white transition py-1 border-b border-white/5">Cek Transaksi</a>
+                <a href="#" class="hover:text-white transition py-1 border-b border-white/5">Testimoni</a>
+                <a href="#" class="hover:text-white transition py-1">Support</a>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        HERO SECTION
+        ============================================================ -->
+        <section class="glass rounded-2xl p-6 sm:p-10 mb-6 sm:mb-8 relative overflow-hidden">
+            <!-- subtle gradient overlay -->
+            <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#8B5CF6]/5 to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-t from-[#06B6D4]/5 to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-10">
+                <!-- Hero Text -->
+                <div class="flex-1">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+                        Top Up Robux <br />
+                        <span class="glow-text text-[#8B5CF6]">Fast, Safe &amp; Cheap</span>
+                    </h1>
+                    <p class="text-gray-400 text-sm sm:text-base mt-3 max-w-md">
+                        Proses otomatis 1 detik · 100% legal · Harga termurah se-Indonesia
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3 mt-5">
+                        <div class="flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                            <i class="fas fa-bolt text-[#06B6D4] text-sm"></i>
+                            <span>24/7 Instant</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                            <i class="fas fa-shield-alt text-[#8B5CF6] text-sm"></i>
+                            <span>100% Legal</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                            <i class="fas fa-star text-[#EC4899] text-sm"></i>
+                            <span>4.9/5 Rating</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Track Widget -->
+                <div class="w-full lg:w-72 glass-light rounded-xl p-4 sm:p-5 border border-white/5">
+                    <p class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                        <i class="fas fa-search text-[#8B5CF6]"></i> Lacak Pesanan
+                    </p>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="ID Pesanan / Username" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-200 outline-none focus:border-[#8B5CF6]/50 transition" />
+                        <button class="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition">
+                            Cek
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mt-2">Contoh: ORDER-12345 atau username Roblox</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        TOP-UP FORM
+        ============================================================ -->
+        <section class="glass rounded-2xl p-5 sm:p-8 mb-6 sm:mb-8" id="orderForm">
+
+            <h2 class="text-xl sm:text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-[#8B5CF6]">⚡</span> Top Up Robux
+                <span class="text-xs font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">isi form di bawah</span>
+            </h2>
+
+            <!-- ===== STEP 1: USER INFO ===== -->
+            <div class="glass-light rounded-xl p-4 sm:p-5 border border-white/5 mb-5">
+                <div class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                    <span class="bg-[#8B5CF6]/20 text-[#8B5CF6] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                    Akun Roblox
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-400 font-medium block mb-1">Username Roblox</label>
+                        <input type="text" placeholder="Contoh: SukePanda" id="robloxUser" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-200 outline-none focus:border-[#8B5CF6]/50 transition text-sm" />
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-400 font-medium block mb-1">User ID (Opsional)</label>
+                        <input type="text" placeholder="ID Roblox (jika tahu)" id="robloxId" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-200 outline-none focus:border-[#8B5CF6]/50 transition text-sm" />
+                    </div>
+                    <div class="flex items-end">
+                        <button class="text-xs text-[#8B5CF6] hover:text-[#7C3AED] font-medium whitespace-nowrap bg-[#8B5CF6]/10 px-3 py-2.5 rounded-xl border border-[#8B5CF6]/20 transition h-[46px] flex items-center gap-1.5">
+                            <i class="fas fa-question-circle"></i> Cara Cek?
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== STEP 2: NOMINAL ===== -->
+            <div class="glass-light rounded-xl p-4 sm:p-5 border border-white/5 mb-5">
+                <div class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                    <span class="bg-[#8B5CF6]/20 text-[#8B5CF6] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    Pilih Nominal
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" id="robuxGrid">
+                    <!-- cards will be injected by JS -->
+                </div>
+                <div class="mt-3 text-right text-sm">
+                    <span class="text-gray-400">Total: </span>
+                    <span class="text-white font-bold text-lg" id="totalPrice">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- ===== STEP 3: PAYMENT ===== -->
+            <div class="glass-light rounded-xl p-4 sm:p-5 border border-white/5 mb-5">
+                <div class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                    <span class="bg-[#8B5CF6]/20 text-[#8B5CF6] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                    Metode Pembayaran
+                </div>
+
+                <!-- Qris / E-Wallet -->
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">QRIS / E-Wallet</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4" id="paymentEwallet">
+                    <!-- injected by JS -->
+                </div>
+
+                <!-- Virtual Account -->
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-2 mt-1">Virtual Account</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="paymentVa">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+
+            <!-- ===== STEP 4: CONTACT & CHECKOUT ===== -->
+            <div class="glass-light rounded-xl p-4 sm:p-5 border border-white/5">
+                <div class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-3">
+                    <span class="bg-[#8B5CF6]/20 text-[#8B5CF6] w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                    Kontak &amp; Checkout
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-end">
+                    <div class="flex-1 w-full">
+                        <label class="text-xs text-gray-400 font-medium block mb-1">Nomor WhatsApp</label>
+                        <input type="tel" placeholder="0812-3456-7890" id="waNumber" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-200 outline-none focus:border-[#8B5CF6]/50 transition text-sm" />
+                    </div>
+                    <div class="w-full sm:w-auto">
+                        <button class="btn-primary" id="checkoutBtn">
+                            <i class="fas fa-bolt"></i> Beli Sekarang
+                        </button>
+                    </div>
+                </div>
+                <p class="text-[11px] text-gray-500 mt-3 flex items-center gap-1.5">
+                    <i class="fas fa-lock text-[#8B5CF6] text-xs"></i>
+                    Data aman · Notifikasi akan dikirim via WhatsApp
+                </p>
+            </div>
+
+        </section>
+
+        <!-- ============================================================
+        FEATURES
+        ============================================================ -->
+        <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div class="glass rounded-xl p-4 text-center border border-white/5 hover:border-[#8B5CF6]/20 transition">
+                <div class="text-3xl mb-1.5">⚡</div>
+                <p class="text-sm font-semibold text-gray-200">Proses 1 Detik</p>
+                <p class="text-[11px] text-gray-500">Otomatis &amp; instan</p>
+            </div>
+            <div class="glass rounded-xl p-4 text-center border border-white/5 hover:border-[#8B5CF6]/20 transition">
+                <div class="text-3xl mb-1.5">🛡️</div>
+                <p class="text-sm font-semibold text-gray-200">100% Legal</p>
+                <p class="text-[11px] text-gray-500">Item resmi Roblox</p>
+            </div>
+            <div class="glass rounded-xl p-4 text-center border border-white/5 hover:border-[#8B5CF6]/20 transition">
+                <div class="text-3xl mb-1.5">💰</div>
+                <p class="text-sm font-semibold text-gray-200">Harga Termurah</p>
+                <p class="text-[11px] text-gray-500">Pasti lebih murah</p>
+            </div>
+            <div class="glass rounded-xl p-4 text-center border border-white/5 hover:border-[#8B5CF6]/20 transition">
+                <div class="text-3xl mb-1.5">💬</div>
+                <p class="text-sm font-semibold text-gray-200">CS 24 Jam</p>
+                <p class="text-[11px] text-gray-500">Siap bantu kapan saja</p>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        LIVE TICKER
+        ============================================================ -->
+        <section class="glass rounded-xl py-3 px-4 border border-white/5 overflow-hidden mb-6 sm:mb-8">
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold text-[#22c55e] flex items-center gap-1.5 whitespace-nowrap">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#22c55e]"></span>
+                    </span>
+                    LIVE
+                </span>
+                <div class="overflow-hidden flex-1">
+                    <div class="ticker-track" id="tickerTrack">
+                        <!-- injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        FOOTER
+        ============================================================ -->
+        <footer class="glass rounded-2xl px-5 sm:px-8 py-6 sm:py-8 border border-white/5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                    <p class="text-lg font-black glow-text">ROB<span class="text-[#8B5CF6]">STORE</span></p>
+                    <p class="text-xs text-gray-500 mt-2">Top Up Robux terpercaya &amp; tercepat se-Indonesia.</p>
+                    <div class="flex gap-3 mt-3">
+                        <a href="#" class="text-gray-400 hover:text-white transition text-lg"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition text-lg"><i class="fab fa-discord"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition text-lg"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-300 mb-2">Menu</p>
+                    <ul class="text-xs text-gray-500 space-y-1.5">
+                        <li><a href="#" class="hover:text-gray-300 transition">Price List</a></li>
+                        <li><a href="#" class="hover:text-gray-300 transition">Cek Transaksi</a></li>
+                        <li><a href="#" class="hover:text-gray-300 transition">Testimoni</a></li>
+                        <li><a href="#" class="hover:text-gray-300 transition">Kebijakan Privasi</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-300 mb-2">Support</p>
+                    <ul class="text-xs text-gray-500 space-y-1.5">
+                        <li><a href="#" class="hover:text-gray-300 transition">WhatsApp 24/7</a></li>
+                        <li><a href="#" class="hover:text-gray-300 transition">FAQ</a></li>
+                        <li><a href="#" class="hover:text-gray-300 transition">Live Chat</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-300 mb-2">Metode Pembayaran</p>
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-400">
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">DANA</span>
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">OVO</span>
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">GoPay</span>
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">QRIS</span>
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">BCA</span>
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">Mandiri</span>
+                        <span class="bg-white/5 px-2.5 py-1 rounded border border-white/5">Indomaret</span>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/5 mt-6 pt-4 text-center text-[11px] text-gray-500">
+                &copy; 2026 ROBSTORE. All rights reserved. Roblox is a trademark of Roblox Corporation.
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        // ============================================================
+        //  DATA
+        // ============================================================
+        const robuxPackages = [
+            { value: 100, price: 15000, label: '100 Robux', discount: null, best: false },
+            { value: 400, price: 55000, label: '400 Robux', discount: '-10%', best: true },
+            { value: 800, price: 105000, label: '800 Robux', discount: '-15%', best: false },
+            { value: 2000, price: 255000, label: '2.000 Robux', discount: '-20%', best: false },
+            { value: 10000, price: 1200000, label: '10.000 Robux', discount: '-25%', best: true },
+        ];
+
+        const paymentMethods = {
+            ewallet: [
+                { id: 'dana', label: 'DANA', icon: '💳' },
+                { id: 'ovo', label: 'OVO', icon: '📱' },
+                { id: 'gopay', label: 'GoPay', icon: '🟢' },
+                { id: 'shopeepay', label: 'ShopeePay', icon: '🛍️' },
+            ],
+            va: [
+                { id: 'bca', label: 'BCA', icon: '🏦' },
+                { id: 'mandiri', label: 'Mandiri', icon: '🏛️' },
+                { id: 'bri', label: 'BRI', icon: '🏧' },
+                { id: 'bni', label: 'BNI', icon: '🏢' },
+            ]
+        };
+
+        const tickerMessages = [
+            'User Suke*** baru saja membeli 800 Robux — Berhasil ✅',
+            'User PandaRBLX membeli 2.000 Robux — Sukses 🚀',
+            'User GamerPro99 top up 400 Robux — Berhasil ✅',
+            'User RobloxianID beli 10.000 Robux — Sukses 🚀',
+            'User NoobMaster top up 100 Robux — Berhasil ✅',
+            'User PixelWarrior beli 800 Robux — Sukses 🚀',
+        ];
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let selectedPackage = null;
+        let selectedPayment = null;
+        let selectedPaymentType = null;
+
+        // ============================================================
+        //  RENDER FUNCTIONS
+        // ============================================================
+
+        function renderRobuxCards() {
+            const grid = document.getElementById('robuxGrid');
+            grid.innerHTML = '';
+            robuxPackages.forEach((pkg, idx) => {
+                const card = document.createElement('div');
+                card.className = 'robux-card';
+                card.dataset.index = idx;
+                if (pkg.best) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge';
+                    badge.textContent = '⭐ BEST SELLER';
+                    card.appendChild(badge);
+                }
+                card.innerHTML += `
+                    <div class="text-lg font-bold text-white">${pkg.label}</div>
+                    ${pkg.discount ? `<div class="discount">${pkg.discount}</div>` : ''}
+                    <div class="mt-1">
+                        <span class="original-price">Rp ${pkg.price.toLocaleString()}</span>
+                        <div class="price">Rp ${(pkg.price * 0.85).toLocaleString()}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => selectPackage(idx));
+                grid.appendChild(card);
+            });
+        }
+
+        function selectPackage(idx) {
+            const pkg = robuxPackages[idx];
+            if (selectedPackage === idx) {
+                selectedPackage = null;
+            } else {
+                selectedPackage = idx;
+            }
+            updateRobuxUI();
+            updateTotal();
+        }
+
+        function updateRobuxUI() {
+            const cards = document.querySelectorAll('.robux-card');
+            cards.forEach((card, idx) => {
+                card.classList.toggle('selected', idx === selectedPackage);
+            });
+        }
+
+        function renderPaymentOptions() {
+            // E-Wallet
+            const ewalletContainer = document.getElementById('paymentEwallet');
+            ewalletContainer.innerHTML = '';
+            paymentMethods.ewallet.forEach(pm => {
+                const el = document.createElement('div');
+                el.className = 'payment-option';
+                el.dataset.type = 'ewallet';
+                el.dataset.id = pm.id;
+                el.innerHTML = `
+                    <div class="radio"></div>
+                    <span class="icon">${pm.icon}</span>
+                    <span class="text-sm font-medium text-gray-200">${pm.label}</span>
+                `;
+                el.addEventListener('click', () => selectPayment('ewallet', pm.id));
+                ewalletContainer.appendChild(el);
+            });
+
+            // Virtual Account
+            const vaContainer = document.getElementById('paymentVa');
+            vaContainer.innerHTML = '';
+            paymentMethods.va.forEach(pm => {
+                const el = document.createElement('div');
+                el.className = 'payment-option';
+                el.dataset.type = 'va';
+                el.dataset.id = pm.id;
+                el.innerHTML = `
+                    <div class="radio"></div>
+                    <span class="icon">${pm.icon}</span>
+                    <span class="text-sm font-medium text-gray-200">${pm.label}</span>
+                `;
+                el.addEventListener('click', () => selectPayment('va', pm.id));
+                vaContainer.appendChild(el);
+            });
+        }
+
+        function selectPayment(type, id) {
+            if (selectedPayment === id && selectedPaymentType === type) {
+                selectedPayment = null;
+                selectedPaymentType = null;
+            } else {
+                selectedPayment = id;
+                selectedPaymentType = type;
+            }
+            updatePaymentUI();
+        }
+
+        function updatePaymentUI() {
+            document.querySelectorAll('.payment-option').forEach(el => {
+                const type = el.dataset.type;
+                const id = el.dataset.id;
+                el.classList.toggle('selected', selectedPayment === id && selectedPaymentType === type);
+            });
+        }
+
+        function updateTotal() {
+            const totalEl = document.getElementById('totalPrice');
+            if (selectedPackage !== null) {
+                const pkg = robuxPackages[selectedPackage];
+                const finalPrice = Math.round(pkg.price * 0.85);
+                totalEl.textContent = `Rp ${finalPrice.toLocaleString()}`;
+            } else {
+                totalEl.textContent = 'Rp 0';
+            }
+        }
+
+        // ============================================================
+        //  TICKER
+        // ============================================================
+        function renderTicker() {
+            const track = document.getElementById('tickerTrack');
+            // double the messages for seamless loop
+            const all = [...tickerMessages, ...tickerMessages];
+            track.innerHTML = all.map(msg =>
+                `<span class="ticker-item"><span class="dot"></span> ${msg}</span>`
+            ).join('');
+        }
+
+        // ============================================================
+        //  CHECKOUT
+        // ============================================================
+        function handleCheckout() {
+            const user = document.getElementById('robloxUser').value.trim();
+            const wa = document.getElementById('waNumber').value.trim();
+
+            if (!user) {
+                alert('⚠️ Masukkan Username Roblox terlebih dahulu!');
+                document.getElementById('robloxUser').focus();
+                return;
+            }
+            if (selectedPackage === null) {
+                alert('⚠️ Pilih nominal Robux terlebih dahulu!');
+                return;
+            }
+            if (!selectedPayment || !selectedPaymentType) {
+                alert('⚠️ Pilih metode pembayaran!');
+                return;
+            }
+            if (!wa) {
+                alert('⚠️ Masukkan nomor WhatsApp untuk notifikasi!');
+                document.getElementById('waNumber').focus();
+                return;
+            }
+
+            const pkg = robuxPackages[selectedPackage];
+            const finalPrice = Math.round(pkg.price * 0.85);
+            const paymentLabel = document.querySelector(`.payment-option.selected .text-sm`)?.textContent || selectedPayment;
+
+            alert(`✅ Pesanan berhasil!\n\n` +
+                `👤 Username: ${user}\n` +
+                `📦 Paket: ${pkg.label}\n` +
+                `💰 Total: Rp ${finalPrice.toLocaleString()}\n` +
+                `💳 Metode: ${paymentLabel}\n` +
+                `📱 WA: ${wa}\n\n` +
+                `Terima kasih! Notifikasi akan dikirim ke WhatsApp Anda.`);
+
+            // Reset form (optional)
+            // ...
+        }
+
+        // ============================================================
+        //  MOBILE MENU
+        // ============================================================
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        renderRobuxCards();
+        renderPaymentOptions();
+        renderTicker();
+        updateTotal();
+
+        document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
+
+        // Help button (Cara Cek Username)
+        document.querySelector('[data-help]')?.addEventListener('click', () => {
+            alert(
+                '🔍 Cara cek Username Roblox:\n\n' +
+                '1. Buka Roblox.com atau aplikasi Roblox\n' +
+                '2. Login ke akun Anda\n' +
+                '3. Lihat nama di pojok kiri atas (Username)\n' +
+                '4. Untuk User ID: buka profile -> lihat URL -> angka di akhir\n\n' +
+                'Contoh: https://www.roblox.com/users/123456789/profile\n' +
+                'User ID = 123456789'
+            );
+        });
+
+        console.log('🚀 ROBSTORE loaded successfully!');
+    </script>
+
+</body>
+</html>
