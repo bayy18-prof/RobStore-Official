@@ -799,42 +799,50 @@
         //  CHECKOUT
         // ============================================================
         function handleCheckout() {
-            const user = document.getElementById('robloxUser').value.trim();
-            const wa = document.getElementById('waNumber').value.trim();
+        function handleCheckout() {
+    const user = document.getElementById('robloxUser').value.trim();
+    const wa = document.getElementById('waNumber').value.trim();
 
-            if (!user) {
-                alert('⚠️ Masukkan Username Roblox terlebih dahulu!');
-                document.getElementById('robloxUser').focus();
-                return;
-            }
-            if (selectedPackage === null) {
-                alert('⚠️ Pilih nominal Robux terlebih dahulu!');
-                return;
-            }
-            if (!selectedPayment || !selectedPaymentType) {
-                alert('⚠️ Pilih metode pembayaran!');
-                return;
-            }
-            if (!wa) {
-                alert('⚠️ Masukkan nomor WhatsApp untuk notifikasi!');
-                document.getElementById('waNumber').focus();
-                return;
-            }
+    if (!user) {
+        alert('⚠️ Masukkan Username Roblox terlebih dahulu!');
+        return;
+    }
+    if (selectedPackage === null) {
+        alert('⚠️ Pilih nominal Robux terlebih dahulu!');
+        return;
+    }
+    if (!selectedPayment || !selectedPaymentType) {
+        alert('⚠️ Pilih metode pembayaran!');
+        return;
+    }
+    if (!wa) {
+        alert('⚠️ Masukkan nomor WhatsApp untuk notifikasi!');
+        return;
+    }
 
-            const pkg = robuxPackages[selectedPackage];
-            const finalPrice = Math.round(pkg.price * 0.85);
-            const paymentLabel = document.querySelector(`.payment-option.selected .text-sm`)?.textContent || selectedPayment;
+    const pkg = robuxPackages[selectedPackage];
+    const finalPrice = Math.round(pkg.price * 0.85);
+    const paymentLabel = document.querySelector(`.payment-option.selected .text-sm`)?.textContent || selectedPayment;
 
-            alert(`✅ Pesanan berhasil!\n\n` +
-                `👤 Username: ${user}\n` +
-                `📦 Paket: ${pkg.label}\n` +
-                `💰 Total: Rp ${finalPrice.toLocaleString()}\n` +
-                `💳 Metode: ${paymentLabel}\n` +
-                `📱 WA: ${wa}\n\n` +
-                `Terima kasih! Notifikasi akan dikirim ke WhatsApp Anda.`);
+    // 🔹 NOMOR ADMIN DI SINI (ganti dengan nomor admin, format internasional tanpa + atau 0)
+    const ADMIN_WHATSAPP = '62895325736028'; // ← UBAH NOMOR INI
 
-            // Reset form (optional)
-            // ...
+    // Buat pesan order
+    const orderMessage = 
+        `📦 *PESANAN BARU - ROBSTORE*%0A%0A` +
+        `👤 Username: *${user}*%0A` +
+        `📦 Paket: *${pkg.label}*%0A` +
+        `💰 Total: *Rp ${finalPrice.toLocaleString()}*%0A` +
+        `💳 Metode: *${paymentLabel}*%0A` +
+        `📱 WA Pembeli: *${wa}*%0A` +
+        `⏰ Waktu: *${new Date().toLocaleString('id-ID')}*`;
+
+    // Arahkan ke WhatsApp admin
+    const waLink = `https://wa.me/${ADMIN_WHATSAPP}?text=${orderMessage}`;
+    window.open(waLink, '_blank');
+
+    // Tampilkan konfirmasi ke pembeli
+    alert('✅ Pesanan diteruskan ke WhatsApp admin!\n\nAdmin akan segera menghubungi Anda untuk konfirmasi pembayaran.');
         }
 
         // ============================================================
